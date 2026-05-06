@@ -8,7 +8,7 @@ permissions:
 
 jobs:
   sync:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout Current Repo
@@ -16,10 +16,63 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Install Requirements
+        run: |
+          sudo apt-get update
+
+          sudo apt-get install -y \
+            git \
+            rsync \
+            curl \
+            wget \
+            unzip \
+            zip \
+            tar \
+            gzip \
+            bzip2 \
+            xz-utils \
+            zstd \
+            build-essential \
+            clang \
+            flex \
+            bison \
+            g++ \
+            gawk \
+            gcc-multilib \
+            g++-multilib \
+            gettext \
+            libncurses5-dev \
+            libssl-dev \
+            python3 \
+            python3-pip \
+            python3-setuptools \
+            python3-distutils \
+            python3-dev \
+            rsync \
+            file \
+            patch \
+            pkgconf \
+            ccache \
+            ca-certificates \
+            jq \
+            tree \
+            dos2unix
+
       - name: Configure Git
         run: |
           git config --global user.name "dotywrt"
           git config --global user.email "dotywrt@gmail.com"
+
+      - name: Show System Info
+        run: |
+          uname -a
+          lsb_release -a || true
+
+          echo
+          git --version
+
+          echo
+          df -h
 
       - name: Clone OpenWrt v25.12.2
         run: |
@@ -30,6 +83,14 @@ jobs:
             --branch v25.12.2 \
             https://github.com/openwrt/openwrt.git \
             /tmp/openwrt
+
+      - name: Normalize Scripts
+        run: |
+          find /tmp/openwrt \
+            -type f \
+            \( -name "*.sh" -o -name "*.txt" \) \
+            -exec dos2unix {} \; \
+            -exec chmod +x {} \;
 
       - name: Clean Current Repo
         run: |
@@ -42,9 +103,17 @@ jobs:
 
       - name: Copy OpenWrt Source
         run: |
-          rsync -a --delete \
+          rsync -a \
+            --delete \
             /tmp/openwrt/ \
             ./
+
+      - name: Show OpenWrt Version
+        run: |
+          cat version.date 2>/dev/null || true
+          cat version 2>/dev/null || true
+
+          git log -1 --oneline
 
       - name: Commit Changes
         run: |
