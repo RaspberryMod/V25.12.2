@@ -54,7 +54,7 @@ jobs:
 
       - name: Add Custom Feed
         run: |
-          sed -i '1i src-git dotywrt_pkg https://github.com/AW1Kdev/wp.git' \
+          sed -i '1i src-git dotywrt_pkg https://github.com/AW1Kdev/wp.git^ef4c38bb938477cc9ab8e4d30a712b5a3b323778' \
             /tmp/openwrt/feeds.conf.default
 
           cat /tmp/openwrt/feeds.conf.default
