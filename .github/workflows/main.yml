@@ -14,6 +14,7 @@ jobs:
       - name: Checkout Current Repo
         uses: actions/checkout@v4
         with:
+          ref: main
           fetch-depth: 0
 
       - name: Install Requirements
@@ -48,7 +49,6 @@ jobs:
             python3-setuptools \
             python3-distutils \
             python3-dev \
-            rsync \
             file \
             patch \
             pkgconf \
@@ -67,11 +67,8 @@ jobs:
         run: |
           uname -a
           lsb_release -a || true
-
-          echo
-          git --version
-
-          echo
+          git status
+          git branch --show-current
           df -h
 
       - name: Clone OpenWrt v25.12.2
@@ -83,6 +80,13 @@ jobs:
             --branch v25.12.2 \
             https://github.com/openwrt/openwrt.git \
             /tmp/openwrt
+
+      - name: Add Custom Feed
+        run: |
+          sed -i '1i src-git dotywrt_pkg https://github.com/AW1Kdev/wp.git' \
+            /tmp/openwrt/feeds.conf.default
+
+          cat /tmp/openwrt/feeds.conf.default
 
       - name: Normalize Scripts
         run: |
@@ -119,8 +123,8 @@ jobs:
         run: |
           git add .
 
-          git commit -m "Sync OpenWrt v25.12.2" || echo "No changes"
+          git commit -m "Sync OpenWrt v25.12.2 with dotywrt feed" || echo "No changes"
 
       - name: Push Changes
         run: |
-          git push
+          git push origin main
