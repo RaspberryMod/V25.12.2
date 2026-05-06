@@ -1,0 +1,57 @@
+name: Sync OpenWrt v25.12.2
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout Current Repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "dotywrt"
+          git config --global user.email "dotywrt@gmail.com"
+
+      - name: Clone OpenWrt v25.12.2
+        run: |
+          rm -rf /tmp/openwrt
+
+          git clone \
+            --depth=1 \
+            --branch v25.12.2 \
+            https://github.com/openwrt/openwrt.git \
+            /tmp/openwrt
+
+      - name: Clean Current Repo
+        run: |
+          find . \
+            -mindepth 1 \
+            -maxdepth 1 \
+            ! -name ".git" \
+            ! -name ".github" \
+            -exec rm -rf {} +
+
+      - name: Copy OpenWrt Source
+        run: |
+          rsync -a --delete \
+            /tmp/openwrt/ \
+            ./
+
+      - name: Commit Changes
+        run: |
+          git add .
+
+          git commit -m "Sync OpenWrt v25.12.2" || echo "No changes"
+
+      - name: Push Changes
+        run: |
+          git push
