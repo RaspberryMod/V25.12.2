@@ -5,6 +5,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 jobs:
   sync:
@@ -80,6 +81,7 @@ jobs:
           rsync -a \
             --delete \
             --exclude='.git' \
+            --exclude='.github' \
             /tmp/openwrt/ \
             ./
 
